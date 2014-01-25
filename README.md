@@ -17,7 +17,7 @@ How to compile
 --------------
 
 1. patch this with patch -p1
-2. exec following commands
+2. exec following commands in order:
 
 - libtoolize
 - aclocal

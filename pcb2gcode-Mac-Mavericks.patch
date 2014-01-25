@@ -1,0 +1,312 @@
+diff -arcN pcb2gcode-20130124.gitboard.cpp pcb2gcode/board.cpp
+*** pcb2gcode-20130124.git/board.cpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/board.cpp	2014-01-24 17:36:30.000000000 +0900
+***************
+*** 52,58 ****
+  Board::prepareLayer( string layername, shared_ptr<LayerImporter> importer, shared_ptr<RoutingMill> manufacturer, bool mirror, bool mirror_absolute )
+  {
+          // see comment for prep_t in board.hpp
+!         prepared_layers.insert( std::make_pair( layername, make_tuple(importer, manufacturer, mirror, mirror_absolute) ) );
+  }
+  
+  void
+--- 52,58 ----
+  Board::prepareLayer( string layername, shared_ptr<LayerImporter> importer, shared_ptr<RoutingMill> manufacturer, bool mirror, bool mirror_absolute )
+  {
+          // see comment for prep_t in board.hpp
+!         prepared_layers.insert( std::make_pair( layername, boost::make_tuple(importer, manufacturer, mirror, mirror_absolute) ) );
+  }
+  
+  void
+diff -arcN pcb2gcode-20130124.git/board.hpp pcb2gcode/board.hpp
+*** pcb2gcode-20130124.git/board.hpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/board.hpp	2014-01-24 17:39:30.000000000 +0900
+***************
+*** 37,44 ****
+  using std::pair;
+  
+  #include <boost/foreach.hpp>
+! #include <boost/shared_ptr.hpp>
+! using boost::shared_ptr;
+  #include <boost/tuple/tuple.hpp>
+  using boost::tuple;
+  
+--- 37,46 ----
+  using std::pair;
+  
+  #include <boost/foreach.hpp>
+! //#include <boost/shared_ptr.hpp>
+! //using boost::shared_ptr;
+! #include <memory>
+! using std::shared_ptr;
+  #include <boost/tuple/tuple.hpp>
+  using boost::tuple;
+  
+diff -arcN pcb2gcode-20130124.git/drill.hpp pcb2gcode/drill.hpp
+*** pcb2gcode-20130124.git/drill.hpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/drill.hpp	2014-01-24 17:42:18.000000000 +0900
+***************
+*** 32,39 ****
+  #include <map>
+  using std::map;
+  
+! #include <boost/shared_ptr.hpp>
+! using boost::shared_ptr;
+  
+  extern "C" {
+  #include <gerbv.h>
+--- 32,41 ----
+  #include <map>
+  using std::map;
+  
+! // #include <boost/shared_ptr.hpp>
+! #include <memory>
+! // using boost::shared_ptr;
+! using std::shared_ptr;
+  
+  extern "C" {
+  #include <gerbv.h>
+diff -arcN pcb2gcode-20130124.git/exporter.hpp pcb2gcode/exporter.hpp
+*** pcb2gcode-20130124.git/exporter.hpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/exporter.hpp	2014-01-24 17:40:35.000000000 +0900
+***************
+*** 29,36 ****
+  using std::pair;
+  
+  #include <boost/noncopyable.hpp>
+! #include <boost/shared_ptr.hpp>
+! using boost::shared_ptr;
+  
+  #include <boost/program_options.hpp>
+  
+--- 29,38 ----
+  using std::pair;
+  
+  #include <boost/noncopyable.hpp>
+! // #include <boost/shared_ptr.hpp>
+! #include <memory>
+! // using boost::shared_ptr;
+! using std::shared_ptr;
+  
+  #include <boost/program_options.hpp>
+  
+diff -arcN pcb2gcode-20130124.git/main.cpp pcb2gcode/main.cpp
+*** pcb2gcode-20130124.git/main.cpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/main.cpp	2014-01-24 18:22:26.000000000 +0900
+***************
+*** 152,158 ****
+  		cout << "Importing front side... ";
+  		try {
+  			string frontfile = vm["front"].as<string>();
+! 			boost::shared_ptr<LayerImporter> importer( new GerberImporter(frontfile) );
+  			board->prepareLayer( "front", importer, isolator, false, vm.count("mirror-absolute") );
+  			cout << "done\n";
+  		} catch( import_exception& i ) {
+--- 152,158 ----
+  		cout << "Importing front side... ";
+  		try {
+  			string frontfile = vm["front"].as<string>();
+! 			std::shared_ptr<LayerImporter> importer( new GerberImporter(frontfile) );
+  			board->prepareLayer( "front", importer, isolator, false, vm.count("mirror-absolute") );
+  			cout << "done\n";
+  		} catch( import_exception& i ) {
+***************
+*** 164,170 ****
+  		cout << "Importing back side... ";
+  		try {
+  			string backfile = vm["back"].as<string>();
+! 			boost::shared_ptr<LayerImporter> importer( new GerberImporter(backfile) );
+  			board->prepareLayer( "back", importer, isolator, true, vm.count("mirror-absolute") );
+  			cout << "done\n";
+  		} catch( import_exception& i ) {
+--- 164,170 ----
+  		cout << "Importing back side... ";
+  		try {
+  			string backfile = vm["back"].as<string>();
+! 			std::shared_ptr<LayerImporter> importer( new GerberImporter(backfile) );
+  			board->prepareLayer( "back", importer, isolator, true, vm.count("mirror-absolute") );
+  			cout << "done\n";
+  		} catch( import_exception& i ) {
+***************
+*** 176,182 ****
+  		cout << "Importing outline... ";
+  		try {
+  			string outline = vm["outline"].as<string>();
+! 			boost::shared_ptr<LayerImporter> importer( new GerberImporter(outline) );
+  			board->prepareLayer( "outline", importer, cutter, !vm.count("front"), vm.count("mirror-absolute") );
+  			cout << "done\n";
+  		} catch( import_exception& i ) {
+--- 176,182 ----
+  		cout << "Importing outline... ";
+  		try {
+  			string outline = vm["outline"].as<string>();
+! 			std::shared_ptr<LayerImporter> importer( new GerberImporter(outline) );
+  			board->prepareLayer( "outline", importer, cutter, !vm.count("front"), vm.count("mirror-absolute") );
+  			cout << "done\n";
+  		} catch( import_exception& i ) {
+diff -arcN pcb2gcode-20130124.git/ngc_exporter.cpp pcb2gcode/ngc_exporter.cpp
+*** pcb2gcode-20130124.git/ngc_exporter.cpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/ngc_exporter.cpp	2014-01-24 17:54:12.000000000 +0900
+***************
+*** 124,130 ****
+  		/** if we're cutting, perhaps do it in multiple steps, but do isolations just once.
+  		 *  i know this is partially repetitive, but this way it's easier to read
+  		 */
+! 		shared_ptr<Cutter> cutter = boost::dynamic_pointer_cast<Cutter>( mill );
+  		if( cutter && cutter->do_steps ) {
+  			// cutting
+  			double z_step = cutter->stepsize;
+--- 124,130 ----
+  		/** if we're cutting, perhaps do it in multiple steps, but do isolations just once.
+  		 *  i know this is partially repetitive, but this way it's easier to read
+  		 */
+! 		shared_ptr<Cutter> cutter = std::dynamic_pointer_cast<Cutter>( mill );
+  		if( cutter && cutter->do_steps ) {
+  			// cutting
+  			double z_step = cutter->stepsize;
+diff -arcN pcb2gcode-20130124.git/ngc_exporter.hpp pcb2gcode/ngc_exporter.hpp
+*** pcb2gcode-20130124.git/ngc_exporter.hpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/ngc_exporter.hpp	2014-01-24 18:16:59.000000000 +0900
+***************
+*** 31,38 ****
+  #include <fstream>
+  using std::ofstream;
+  
+! #include <boost/shared_ptr.hpp>
+! using boost::shared_ptr;
+  
+  #include <boost/program_options.hpp>
+  
+--- 31,49 ----
+  #include <fstream>
+  using std::ofstream;
+  
+! //#include <boost/shared_ptr.hpp>
+! #include <memory>
+! // using boost::shared_ptr;
+! using std::shared_ptr;
+! template<class T, class U> inline shared_ptr<T> dynamic_pointer_cast( shared_ptr<U> const & r ) _NOEXCEPT
+! {
+!     (void) dynamic_cast< T* >( static_cast< U* >( 0 ) );
+! 
+!     typedef typename shared_ptr<T>::element_type E;
+! 
+!     E * p = dynamic_cast< E* >( r.get() );
+!     return p? shared_ptr<T>( r, p ): shared_ptr<T>();
+! }
+  
+  #include <boost/program_options.hpp>
+  
+diff -arcN pcb2gcode-20130124.git/options.hpp pcb2gcode/options.hpp
+*** pcb2gcode-20130124.git/options.hpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/options.hpp	2014-01-24 18:19:19.000000000 +0900
+***************
+*** 23,30 ****
+  
+  #include <stdexcept>
+  
+! #include <boost/shared_ptr.hpp>
+! using boost::shared_ptr;
+  
+  #include <boost/program_options.hpp>
+  namespace po = boost::program_options;
+--- 23,32 ----
+  
+  #include <stdexcept>
+  
+! // #include <boost/shared_ptr.hpp>
+! #include <memory>
+! // using boost::shared_ptr;
+! using std::shared_ptr;
+  
+  #include <boost/program_options.hpp>
+  namespace po = boost::program_options;
+diff -arcN pcb2gcode-20130124.git/surface.cpp pcb2gcode/surface.cpp
+*** pcb2gcode-20130124.git/surface.cpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/surface.cpp	2014-01-24 18:17:50.000000000 +0900
+***************
+*** 70,76 ****
+          }
+  }
+  
+! void Surface::render( boost::shared_ptr<LayerImporter> importer ) throw(import_exception)
+  {
+  	importer->render(cairo_surface, dpi, min_x - static_cast<ivalue_t>(procmargin)/dpi,
+  			 min_y - static_cast<ivalue_t>(procmargin)/dpi );
+--- 70,76 ----
+          }
+  }
+  
+! void Surface::render( std::shared_ptr<LayerImporter> importer ) throw(import_exception)
+  {
+  	importer->render(cairo_surface, dpi, min_x - static_cast<ivalue_t>(procmargin)/dpi,
+  			 min_y - static_cast<ivalue_t>(procmargin)/dpi );
+diff -arcN pcb2gcode-20130124.git/surface.hpp pcb2gcode/surface.hpp
+*** pcb2gcode-20130124.git/surface.hpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/surface.hpp	2014-01-24 17:38:22.000000000 +0900
+***************
+*** 23,30 ****
+  
+  #include <boost/noncopyable.hpp>
+  #include <boost/array.hpp>
+! #include <boost/shared_ptr.hpp>
+! using boost::shared_ptr;
+  
+  #include <vector>
+  using std::vector;
+--- 23,32 ----
+  
+  #include <boost/noncopyable.hpp>
+  #include <boost/array.hpp>
+! // #include <boost/shared_ptr.hpp>
+! // using boost::shared_ptr;
+! #include <memory>
+! using std::shared_ptr;
+  
+  #include <vector>
+  using std::vector;
+***************
+*** 44,52 ****
+  {
+  public:
+  	Surface( guint dpi, ivalue_t min_x, ivalue_t max_x, ivalue_t min_y, ivalue_t max_y );
+! 	void render( boost::shared_ptr<LayerImporter> importer) throw(import_exception);
+  
+! 	boost::shared_ptr< Surface > deep_copy();
+  
+  	void save_debug_image(string);
+  
+--- 46,54 ----
+  {
+  public:
+  	Surface( guint dpi, ivalue_t min_x, ivalue_t max_x, ivalue_t min_y, ivalue_t max_y );
+! 	void render( std::shared_ptr<LayerImporter> importer) throw(import_exception);
+  
+! 	std::shared_ptr< Surface > deep_copy();
+  
+  	void save_debug_image(string);
+  
+diff -arcN pcb2gcode-20130124.git/svg_exporter.hpp pcb2gcode/svg_exporter.hpp
+*** pcb2gcode-20130124.git/svg_exporter.hpp	2014-01-25 16:11:36.000000000 +0900
+--- pcb2gcode/svg_exporter.hpp	2014-01-24 17:41:09.000000000 +0900
+***************
+*** 29,36 ****
+  #include <map>
+  using std::map;
+  
+! #include <boost/shared_ptr.hpp>
+! using boost::shared_ptr;
+  
+  extern "C" {
+  #include <gerbv.h>
+--- 29,38 ----
+  #include <map>
+  using std::map;
+  
+! // #include <boost/shared_ptr.hpp>
+! #include <memory>
+! // using boost::shared_ptr;
+! using std::shared_ptr;
+  
+  extern "C" {
+  #include <gerbv.h>

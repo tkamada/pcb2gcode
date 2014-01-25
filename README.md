@@ -26,6 +26,8 @@ How to compile
 - ./configure (with an option --prefix directory setting as you prefer)
 - make -j
 
+The "pcb2gcode" executable is at the same directory you compiled.
+
 Tested environment
 ------------------
 

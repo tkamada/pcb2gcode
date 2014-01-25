@@ -19,16 +19,16 @@ How to compile
 1. patch this with patch -p1
 2. exec following commands
 
-  libtoolize
-  aclocal
-  automake --add-missing
-  autoreconf
-  ./configure (with an option --prefix directory setting as you prefer)
-  make -j
+- libtoolize
+- aclocal
+- automake --add-missing
+- autoreconf
+- ./configure (with an option --prefix directory setting as you prefer)
+- make -j
 
 Tested environment
 ------------------
 
-Mac OS X 10.9.1 Mavericks
-Xcode 5.0.2 with command line tools
-MacPorts or HomeBrew to install dependent libraries
+- Mac OS X 10.9.1 Mavericks
+- Xcode 5.0.2 with command line tools
+- MacPorts or HomeBrew to install dependent libraries
